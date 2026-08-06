@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Eito",
-  description: "Eito application",
+  description:
+    "O mutirão de código do ecossistema brasileiro — bounties, PIX e contribuições open source.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -10,7 +10,7 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-1 flex-col">
-      <header className="border-border flex items-center justify-between border-b px-6 py-4">
+      <header className="flex items-center justify-between border-b border-border px-6 py-4">
         <p className="font-heading text-xl font-semibold tracking-tight">
           Eito
         </p>
@@ -21,13 +21,15 @@ export default async function HomePage() {
         </form>
       </header>
 
-      <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-3 px-6 py-16">
+      <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-4 px-6 py-16">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Bem-vindo
+          Bem-vindo ao mutirão
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground leading-relaxed">
           Você entrou como{" "}
-          <span className="text-foreground font-medium">{user?.email}</span>.
+          <span className="font-medium text-foreground">{user?.email}</span>.
+          Em breve você poderá acompanhar projetos abertos, tarefas com bounty
+          via PIX e contribuições verificadas por Pull Request.
         </p>
       </section>
     </main>

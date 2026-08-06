@@ -1,83 +1,116 @@
-# 🌾 Eito
+# Eito
 
 > **O mutirão de código do ecossistema brasileiro.**  
-> Uma plataforma colaborativa open source para financiamento, gestão e entrega de projetos de software via bounties e contribuições comunitárias.
+> Plataforma colaborativa open source para financiamento, gestão e entrega de projetos de software via bounties e contribuições comunitárias.
 
 ---
 
-## 💡 O que é o Eito?
+## O que é o Eito?
 
-O **Eito** conecta mantenedores de projetos, startups e desenvolvedores no Brasil. Inspirado no conceito de financiamento coletivo e plataformas de _bounties_ internacionais, o Eito permite que qualquer pessoa ou empresa abra projetos públicos, organize tarefas via Kanban/Scrum e financie a resolução de _issues_ com recompensas diretas via **PIX**.
+O **Eito** conecta mantenedores de projetos, startups e desenvolvedores no Brasil. Inspirado no financiamento coletivo e em plataformas internacionais de _bounties_, permite que qualquer pessoa ou empresa abra projetos públicos, organize tarefas e financie a resolução de _issues_ com recompensas diretas via **PIX**.
 
-### 🌟 Pilares Principais
+### Pilares
 
-- **Projetos Abertos & Transparência:** Cadastre repositórios públicos e organize a gestão do projeto em um só lugar.
-- **Micro-recompensas via PIX:** Financie _features_ ou correções de bugs sem burocracia internacional.
-- **Portfólio Real & Colaboração:** Desenvolvedores contribuem com código verificado via Pull Request e acumulam reputação e ganhos reais.
+- **Projetos abertos e transparência:** cadastre repositórios públicos e organize a gestão em um só lugar.
+- **Micro-recompensas via PIX:** financie features ou correções sem burocracia internacional.
+- **Portfólio real e colaboração:** contribuições verificadas via Pull Request, com reputação e ganhos reais.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack
 
-- **Framework:** [Next.js (App Router)](https://nextjs.org/) + TypeScript
-- **UI & Estilo:** [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-- **Banco de Dados & Autenticação:** [Supabase](https://supabase.com/) (PostgreSQL + OAuth GitHub)
+- **Framework:** [Next.js](https://nextjs.org/) (App Router) + TypeScript
+- **UI:** [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **Banco e Auth:** [Supabase](https://supabase.com/) (PostgreSQL + Auth, com OAuth GitHub e Google)
 - **ORM:** [Prisma](https://www.prisma.io/)
-- **Ambiente Local:** Docker / Docker Compose
+- **Ambiente local:** [Supabase CLI](https://supabase.com/docs/guides/cli) + Docker
 
 ---
 
-## 🚀 Como Rodar o Projeto Localmente
+## Como rodar localmente
 
 ### Pré-requisitos
 
-- [Node.js](https://nodejs.org/) (v18 ou superior)
-- [Docker](https://www.docker.com/) e Docker Compose
+- [Node.js](https://nodejs.org/) **20.19+**
+- [Docker](https://www.docker.com/) (necessário para o Supabase local)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
 - [Git](https://git-scm.com/)
 
-### Passo a Passo
+### Passo a passo
 
 1. **Clone o repositório:**
+
+   ```bash
    git clone https://github.com/seu-usuario/eito.git
    cd eito
+   ```
 
 2. **Instale as dependências:**
+
+   ```bash
    npm install
+   ```
 
 3. **Configure as variáveis de ambiente:**
+
+   ```bash
    cp .env.example .env
+   ```
 
-4. **Suba o banco de dados PostgreSQL via Docker:**
-   docker compose up -d
+   Preencha `NEXT_PUBLIC_SUPABASE_ANON_KEY` (veja com `supabase status` após subir o stack) e, para login social, as credenciais OAuth de GitHub e Google.
 
-5. **Execute as migrations do Prisma:**
-   npx prisma db push
+4. **Suba o Supabase local:**
+
+   ```bash
+   npm run db:start
+   ```
+
+5. **Sincronize o schema do Prisma:**
+
+   ```bash
+   npm run db:push
+   ```
 
 6. **Inicie o servidor de desenvolvimento:**
+
+   ```bash
    npm run dev
+   ```
 
-Acesse `http://localhost:3000` no seu navegador.
+Acesse [http://127.0.0.1:3000](http://127.0.0.1:3000). Sem sessão, você será redirecionado para `/login`.
+
+### Scripts úteis
+
+| Comando               | Descrição                        |
+| --------------------- | -------------------------------- |
+| `npm run dev`         | Servidor de desenvolvimento      |
+| `npm run lint`        | ESLint                           |
+| `npm run format`      | Formata com Prettier             |
+| `npm run db:start`    | Sobe o Supabase local            |
+| `npm run db:stop`     | Para o Supabase local            |
+| `npm run db:push`     | Sincroniza o schema Prisma       |
+| `npm run db:studio`   | Abre o Prisma Studio             |
 
 ---
 
-## 🤝 Como Contribuir
+## Como contribuir
 
-O Eito é construído pela própria comunidade! Se você quer ajudar a criar essa plataforma, leia nosso guia completo em [CONTRIBUTING.md](./CONTRIBUTING.md).
+O Eito é construído pela própria comunidade. Leia o guia completo em [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-Procurando por onde começar? Confira nossas issues com a tag [`good-first-issue`](https://github.com/seu-usuario/eito/issues?q=is%3Aissue+is%3Aopen+label%3A%22good-first-issue%22).
+Procurando por onde começar? Confira issues com a tag [`good-first-issue`](https://github.com/seu-usuario/eito/issues?q=is%3Aissue+is%3Aopen+label%3A%22good-first-issue%22).
 
 ---
 
-## 👥 Contribuidores
+## Contribuidores
 
-Agradecimento especial a todos que ajudam a erguer o Eito:
+Agradecimento a todos que ajudam a erguer o Eito:
 
 <a href="https://github.com/seu-usuario/eito/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=seu-usuario/eito" />
+  <img src="https://contrib.rocks/image?repo=seu-usuario/eito" alt="Contribuidores do Eito" />
 </a>
 
 ---
 
-## 📄 Licença
+## Licença
 
 Este projeto está sob a licença [MIT](./LICENSE).
