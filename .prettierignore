@@ -7,5 +7,6 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 public
+src/generated
 *.min.js
 *.min.css

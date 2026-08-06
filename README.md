@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌾 Eito
 
-## Getting Started
+> **O mutirão de código do ecossistema brasileiro.**  
+> Uma plataforma colaborativa open source para financiamento, gestão e entrega de projetos de software via bounties e contribuições comunitárias.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 💡 O que é o Eito?
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O **Eito** conecta mantenedores de projetos, startups e desenvolvedores no Brasil. Inspirado no conceito de financiamento coletivo e plataformas de _bounties_ internacionais, o Eito permite que qualquer pessoa ou empresa abra projetos públicos, organize tarefas via Kanban/Scrum e financie a resolução de _issues_ com recompensas diretas via **PIX**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🌟 Pilares Principais
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Projetos Abertos & Transparência:** Cadastre repositórios públicos e organize a gestão do projeto em um só lugar.
+- **Micro-recompensas via PIX:** Financie _features_ ou correções de bugs sem burocracia internacional.
+- **Portfólio Real & Colaboração:** Desenvolvedores contribuem com código verificado via Pull Request e acumulam reputação e ganhos reais.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Stack Tecnológica
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework:** [Next.js (App Router)](https://nextjs.org/) + TypeScript
+- **UI & Estilo:** [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **Banco de Dados & Autenticação:** [Supabase](https://supabase.com/) (PostgreSQL + OAuth GitHub)
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Ambiente Local:** Docker / Docker Compose
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Como Rodar o Projeto Localmente
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Pré-requisitos
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Node.js](https://nodejs.org/) (v18 ou superior)
+- [Docker](https://www.docker.com/) e Docker Compose
+- [Git](https://git-scm.com/)
+
+### Passo a Passo
+
+1. **Clone o repositório:**
+   git clone https://github.com/seu-usuario/eito.git
+   cd eito
+
+2. **Instale as dependências:**
+   npm install
+
+3. **Configure as variáveis de ambiente:**
+   cp .env.example .env
+
+4. **Suba o banco de dados PostgreSQL via Docker:**
+   docker compose up -d
+
+5. **Execute as migrations do Prisma:**
+   npx prisma db push
+
+6. **Inicie o servidor de desenvolvimento:**
+   npm run dev
+
+Acesse `http://localhost:3000` no seu navegador.
+
+---
+
+## 🤝 Como Contribuir
+
+O Eito é construído pela própria comunidade! Se você quer ajudar a criar essa plataforma, leia nosso guia completo em [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+Procurando por onde começar? Confira nossas issues com a tag [`good-first-issue`](https://github.com/seu-usuario/eito/issues?q=is%3Aissue+is%3Aopen+label%3A%22good-first-issue%22).
+
+---
+
+## 👥 Contribuidores
+
+Agradecimento especial a todos que ajudam a erguer o Eito:
+
+<a href="https://github.com/seu-usuario/eito/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=seu-usuario/eito" />
+</a>
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença [MIT](./LICENSE).
