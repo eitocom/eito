@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +38,7 @@ export function EditTaskDialog({ taskId, initialValues }: EditTaskDialogProps) {
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<UpdateTaskInput>({
-    resolver: zodResolver(updateTaskSchema),
+    resolver: zodResolver(updateTaskSchema) as Resolver<UpdateTaskInput>,
     defaultValues: initialValues,
   });
 
