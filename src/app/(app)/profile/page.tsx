@@ -3,10 +3,13 @@ import { redirect } from "next/navigation";
 
 import { linkGitHub } from "@/app/account/actions";
 import { PixKeyForm } from "@/app/(app)/profile/pix-key-form";
+import { ProfileBountiesPanel } from "@/components/profile/profile-bounties-panel";
+import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ensureAppUser, hasGitHubConnected } from "@/lib/auth/app-user";
 import { shouldMockOAuth } from "@/lib/auth/mock-oauth";
+import { getProfileBountySummary } from "@/lib/profile/contributions";
 import { createClient } from "@/lib/supabase/server";
 
 function avatarInitial(name: string | null, username: string, email: string) {
@@ -33,6 +36,64 @@ export default async function ProfilePage({
   const githubConnected = hasGitHubConnected(appUser);
   const mockGitHub = shouldMockOAuth("github");
   const displayName = appUser.name || appUser.username || appUser.email;
+  const bountySummary = await getProfileBountySummary(appUser.id);
+
+  const accountPanel = (
+    <>
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="font-heading text-xl font-semibold tracking-tight">
+            Conta GitHub
+          </h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Conectar o GitHub desbloqueia contribuições e criação de projetos.
+          </p>
+        </div>
+
+        {githubConnected ? (
+          <div className="border-border rounded-xl border px-4 py-3 text-sm">
+            Conectado como{" "}
+            <span className="font-medium">@{appUser.username}</span>
+            {appUser.githubId ? (
+              <span className="text-muted-foreground">
+                {" "}
+                · id {appUser.githubId}
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p
+              role="status"
+              className="border-border bg-muted/40 rounded-lg border px-4 py-3 text-sm leading-relaxed"
+            >
+              Seu GitHub ainda não está conectado. Sem isso, você pode explorar
+              o mutirão, mas não assume tarefas nem cria projetos.
+            </p>
+            <form action={linkGitHub}>
+              <input type="hidden" name="next" value="/profile?github=linked" />
+              <Button type="submit" size="lg">
+                Conectar GitHub
+                {mockGitHub ? " (simulado)" : null}
+              </Button>
+            </form>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="font-heading text-xl font-semibold tracking-tight">
+            Pagamento
+          </h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Cadastre a chave PIX que será usada para receber recompensas.
+          </p>
+        </div>
+        <PixKeyForm initialPixKey={appUser.pixKey} />
+      </div>
+    </>
+  );
 
   return (
     <main className="flex flex-1 flex-col">
@@ -49,7 +110,7 @@ export default async function ProfilePage({
             Perfil
           </h1>
           <p className="text-muted-foreground leading-relaxed">
-            Gerencie sua identidade no mutirão e a chave PIX para receber
+            Gerencie sua identidade no mutirão, a chave PIX e o histórico de
             bounties.
           </p>
         </div>
@@ -97,62 +158,10 @@ export default async function ProfilePage({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <h2 className="font-heading text-xl font-semibold tracking-tight">
-              Conta GitHub
-            </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Conectar o GitHub desbloqueia contribuições e criação de projetos.
-            </p>
-          </div>
-
-          {githubConnected ? (
-            <div className="border-border rounded-xl border px-4 py-3 text-sm">
-              Conectado como{" "}
-              <span className="font-medium">@{appUser.username}</span>
-              {appUser.githubId ? (
-                <span className="text-muted-foreground">
-                  {" "}
-                  · id {appUser.githubId}
-                </span>
-              ) : null}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p
-                role="status"
-                className="border-border bg-muted/40 rounded-lg border px-4 py-3 text-sm leading-relaxed"
-              >
-                Seu GitHub ainda não está conectado. Sem isso, você pode
-                explorar o mutirão, mas não assume tarefas nem cria projetos.
-              </p>
-              <form action={linkGitHub}>
-                <input
-                  type="hidden"
-                  name="next"
-                  value="/profile?github=linked"
-                />
-                <Button type="submit" size="lg">
-                  Conectar GitHub
-                  {mockGitHub ? " (simulado)" : null}
-                </Button>
-              </form>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <h2 className="font-heading text-xl font-semibold tracking-tight">
-              Pagamento
-            </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Cadastre a chave PIX que será usada para receber recompensas.
-            </p>
-          </div>
-          <PixKeyForm initialPixKey={appUser.pixKey} />
-        </div>
+        <ProfileTabs
+          account={accountPanel}
+          bounties={<ProfileBountiesPanel summary={bountySummary} />}
+        />
       </section>
     </main>
   );
