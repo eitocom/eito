@@ -151,6 +151,8 @@ yarn dev
 
 Detalhes, portas, OAuth mock e troubleshooting estão no [README.md](./README.md).
 
+Para publicar a app (Vercel + Supabase cloud), siga a seção [Deploy (Vercel + Supabase)](./README.md#deploy-vercel--supabase) no README — variáveis de ambiente, OAuth real, `db push` e Site URL.
+
 ---
 
 ## Código de conduta

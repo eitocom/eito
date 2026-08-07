@@ -153,19 +153,20 @@ Com `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` **vazios** e `NODE_ENV` de desenvolv
 
 ### Scripts úteis
 
-| Comando             | Descrição                                |
-| ------------------- | ---------------------------------------- |
-| `yarn dev`          | Servidor de desenvolvimento              |
-| `yarn build`        | Gera Prisma Client e build do Next.js    |
-| `yarn lint`         | ESLint                                   |
-| `yarn format`       | Formata com Prettier                     |
-| `yarn format:check` | Verifica formatação sem alterar arquivos |
-| `yarn commit`       | Commit assistido (Commitizen)            |
-| `yarn db:start`     | Sobe o Supabase local (`supabase start`) |
-| `yarn db:stop`      | Para o Supabase local                    |
-| `yarn db:push`      | Sincroniza o schema Prisma (`db push`)   |
-| `yarn db:migrate`   | Cria/aplica migrations Prisma            |
-| `yarn db:studio`    | Abre o Prisma Studio                     |
+| Comando             | Descrição                                                                 |
+| ------------------- | ------------------------------------------------------------------------- |
+| `yarn dev`          | Servidor de desenvolvimento                                               |
+| `yarn build`        | Gera Prisma Client e build do Next.js                                     |
+| `yarn lint`         | ESLint                                                                    |
+| `yarn format`       | Formata com Prettier                                                      |
+| `yarn format:check` | Verifica formatação sem alterar arquivos                                  |
+| `yarn commit`       | Commit assistido (Commitizen)                                             |
+| `yarn db:start`     | Sobe o Supabase local (`supabase start`)                                  |
+| `yarn db:stop`      | Para o Supabase local                                                     |
+| `yarn db:push`      | Sincroniza o schema Prisma (`db push`)                                    |
+| `yarn db:push:prod` | `db push` usando o `DATABASE_URL` do env (útil com URI do Supabase cloud) |
+| `yarn db:migrate`   | Cria/aplica migrations Prisma                                             |
+| `yarn db:studio`    | Abre o Prisma Studio                                                      |
 
 ### Problemas comuns
 
@@ -174,6 +175,61 @@ Com `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` **vazios** e `NODE_ENV` de desenvolv
 - **Docker parado** — o `yarn db:start` depende do Docker em execução.
 - **Chaves desatualizadas após reset do stack** — rode `supabase status -o env` de novo e atualize o `.env`.
 - **`/auth/callback` na Vercel: “This page isn’t working”** — `DATABASE_URL` provavelmente usa o host direto (`db.<ref>.supabase.co:5432`, IPv6). Na Vercel use o **Transaction pooler** (`…pooler.supabase.com:6543`, user `postgres.<ref>`). Veja o comentário em `.env.example`.
+
+---
+
+## Deploy (Vercel + Supabase)
+
+Em produção o mock de OAuth **não funciona** (`NODE_ENV=production`). Use provedores reais no Supabase (GitHub recomendado no primeiro deploy).
+
+### 1. Supabase cloud
+
+1. Crie um projeto em [supabase.com/dashboard](https://supabase.com/dashboard).
+2. **Settings → API**: copie Project URL, `anon` key e `service_role` key.
+3. **Settings → Database**: copie a connection string (URI).
+4. Aplique o schema Prisma no banco cloud (na sua máquina, com a **Direct connection** porta `5432`):
+
+   ```bash
+   DATABASE_URL="postgresql://postgres:...@db.<PROJECT_REF>.supabase.co:5432/postgres" yarn db:push
+   ```
+
+5. **Authentication → URL Configuration**:
+   - **Site URL:** `https://seu-projeto.vercel.app`
+   - **Redirect URLs:** `https://seu-projeto.vercel.app/auth/callback`  
+     (opcional para previews: `https://*-seu-time.vercel.app/auth/callback`)
+6. **Authentication → Providers → GitHub**:
+   - Crie um OAuth App em [GitHub Developer Settings](https://github.com/settings/developers).
+   - **Authorization callback URL** do GitHub deve ser a do **Supabase**, não da Vercel:  
+     `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+   - Cole Client ID e Secret no provider GitHub do Supabase.
+
+### 2. Vercel
+
+1. Importe o repositório `eitocom/eito` no [Vercel](https://vercel.com) (branch de produção: **`develop`**).
+2. Framework: Next.js · Install: `yarn` · Build: `yarn build` (já roda `prisma generate`).
+3. Configure as Environment Variables (Production e Preview):
+
+| Variável                                    | Origem                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`                              | URI do Postgres (na Vercel, preferir **Transaction pooler** porta `6543` com `?pgbouncer=true`)  |
+| `NEXT_PUBLIC_SUPABASE_URL`                  | Project URL do Supabase                                                                          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`             | anon key                                                                                         |
+| `SUPABASE_SERVICE_ROLE_KEY`                 | service_role (somente server)                                                                    |
+| `NEXT_PUBLIC_APP_URL`                       | URL canônica, ex. `https://seu-projeto.vercel.app`                                               |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | Mesmos do OAuth App (opcional na Vercel se só o Supabase os usa; mantenha alinhados ao provider) |
+
+Referência completa dos nomes está comentada em [`.env.example`](./.env.example).
+
+4. Faça o deploy e valide:
+   - Sem sessão, `/` redireciona para `/login`
+   - Login GitHub completa via `/auth/callback`
+   - Projetos/tarefas leem e gravam no Postgres cloud
+   - `/docs` e `/api/openapi` abrem
+
+### Notas
+
+- O script `prepare` do Husky **não** roda na Vercel/CI (`CI` / `VERCEL`), para não quebrar o install.
+- Ainda não há pasta `prisma/migrations/`; o bootstrap do schema em cloud usa `yarn db:push`. Migrations versionadas podem vir depois.
 
 ---
 

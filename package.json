@@ -14,11 +14,12 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
+    "db:push:prod": "prisma db push",
     "db:studio": "prisma studio",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "commit": "cz",
-    "prepare": "husky"
+    "prepare": "node -e \"if(process.env.CI||process.env.VERCEL)process.exit(0)\" && husky"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",
