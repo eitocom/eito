@@ -1,5 +1,6 @@
 import { linkGitHub } from "@/app/account/actions";
 import { PersistLastLogin } from "@/components/auth/persist-last-login";
+import { ImpactMetrics } from "@/components/home/impact-metrics";
 import { Button } from "@/components/ui/button";
 import {
   CAPABILITY_COPY,
@@ -9,6 +10,7 @@ import {
   type AppCapability,
 } from "@/lib/auth/app-user";
 import { shouldMockOAuth } from "@/lib/auth/mock-oauth";
+import { getPlatformImpactMetrics } from "@/lib/metrics/platform";
 import { createClient } from "@/lib/supabase/server";
 
 const CAPABILITY_ORDER: AppCapability[] = [
@@ -33,6 +35,7 @@ export default async function HomePage({
   const githubConnected = appUser ? hasGitHubConnected(appUser) : false;
   const capabilities = appUser ? getCapabilities(appUser) : [];
   const mockGitHub = shouldMockOAuth("github");
+  const impactMetrics = await getPlatformImpactMetrics();
 
   return (
     <main className="flex flex-1 flex-col">
@@ -147,6 +150,10 @@ export default async function HomePage({
           </ul>
         </div>
       </section>
+
+      <div className="border-border bg-muted/20 border-t">
+        <ImpactMetrics metrics={impactMetrics} />
+      </div>
     </main>
   );
 }
