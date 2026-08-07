@@ -22,7 +22,8 @@ enum TaskStatus {
 
 model User {
   id        String   @id @default(cuid())
-  githubId  String   @unique
+  authId    String   @unique
+  githubId  String?  @unique
   username  String   @unique
   name      String?
   email     String   @unique

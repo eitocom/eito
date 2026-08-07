@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { ensureAppUser } from "@/lib/auth/app-user";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -12,6 +13,14 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        await ensureAppUser(user);
+      }
+
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

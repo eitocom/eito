@@ -4,6 +4,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import {
+  ensureAppUser,
+  linkGitHubToAppUser,
+} from "@/lib/auth/app-user";
+import {
   MOCK_OAUTH_USERS,
   shouldMockOAuth,
   type OAuthProvider,
@@ -29,6 +33,19 @@ async function getAppOrigin() {
   );
 }
 
+async function syncSessionUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await ensureAppUser(user);
+  }
+
+  return user;
+}
+
 export async function signIn(
   _prevState: AuthState,
   formData: FormData,
@@ -50,6 +67,7 @@ export async function signIn(
     return { error: "E-mail ou senha inválidos." };
   }
 
+  await syncSessionUser();
   redirect("/");
 }
 
@@ -78,6 +96,7 @@ export async function signUp(
     return { error: error.message };
   }
 
+  await syncSessionUser();
   redirect("/");
 }
 
@@ -116,6 +135,7 @@ async function signInWithMockOAuth(provider: OAuthProvider) {
           full_name: profile.fullName,
           name: profile.fullName,
           avatar_url: profile.avatarUrl,
+          ...(provider === "github" ? { user_name: "dev-github" } : {}),
         },
         app_metadata: {
           provider,
@@ -136,6 +156,7 @@ async function signInWithMockOAuth(provider: OAuthProvider) {
         full_name: profile.fullName,
         name: profile.fullName,
         avatar_url: profile.avatarUrl,
+        ...(provider === "github" ? { user_name: "dev-github" } : {}),
       },
       app_metadata: {
         provider,
@@ -156,6 +177,17 @@ async function signInWithMockOAuth(provider: OAuthProvider) {
 
   if (error) {
     redirect("/login?error=oauth");
+  }
+
+  const user = await syncSessionUser();
+
+  if (user && provider === "github") {
+    await linkGitHubToAppUser(user.id, {
+      githubId: `mock-login-${user.id.slice(0, 8)}`,
+      username: "dev-github",
+      name: profile.fullName,
+      avatarUrl: profile.avatarUrl,
+    });
   }
 
   redirect("/");
