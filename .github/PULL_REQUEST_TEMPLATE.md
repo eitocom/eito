@@ -40,6 +40,7 @@ Marque com um `x` o tipo de mudança contida neste PR (alinhado aos Conventional
 - [ ] Testei a alteração localmente e tudo está funcionando como esperado
 - [ ] Executei o `yarn build` e a compilação concluiu sem erros de TypeScript
 - [ ] Adicionei/atualizei a documentação necessária, se aplicável
+- [ ] Se alterei rotas `/api/...`: atualizei `src/lib/openapi/document.ts` (e a coleção Postman em `docs/`, se fizer sentido)
 
 ---
 

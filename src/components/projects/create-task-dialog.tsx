@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +42,7 @@ export function CreateTaskDialog({
   const [success, setSuccess] = useState<string | null>(null);
 
   const form = useForm<CreateTaskInput>({
-    resolver: zodResolver(createTaskSchema),
+    resolver: zodResolver(createTaskSchema) as Resolver<CreateTaskInput>,
     defaultValues: {
       title: "",
       description: "",
