@@ -174,7 +174,10 @@ export function LoginForm({
             <form action={formAction} className="space-y-4">
               <input type="hidden" name="email" value={lastLogin.email ?? ""} />
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[oklch(0.9_0.015_95)]">
+                <Label
+                  htmlFor="password"
+                  className="text-[oklch(0.9_0.015_95)]"
+                >
                   Senha
                 </Label>
                 <Input

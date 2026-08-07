@@ -25,7 +25,8 @@ Uma descrição clara do que deveria acontecer em vez do erro.
 
 - **Navegador:** [ex: Chrome, Firefox, Safari]
 - **Sistema Operacional:** [ex: Windows, macOS, Linux]
-- **Ambiente:** [ex: Local (Docker), Staging, Produção]
+- **Ambiente:** [ex: Local (`yarn dev` + Supabase CLI), Staging, Produção]
+- **Node / Yarn:** [ex: Node 20.19+, Yarn 1.22]
 
 ### 📸 Capturas de Tela / Logs (se aplicável)
 
