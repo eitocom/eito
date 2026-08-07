@@ -18,7 +18,28 @@ async function getAppOrigin() {
   );
 }
 
-async function linkGitHubMock() {
+function resolveSafeNextPath(formData?: FormData) {
+  const rawNext = formData?.get("next");
+  if (
+    typeof rawNext === "string" &&
+    rawNext.startsWith("/") &&
+    !rawNext.startsWith("//")
+  ) {
+    return rawNext;
+  }
+
+  return "/?github=linked";
+}
+
+function githubLinkErrorPath(nextPath: string) {
+  if (nextPath.startsWith("/profile")) {
+    return "/profile?error=github_link";
+  }
+
+  return "/?error=github_link";
+}
+
+async function linkGitHubMock(nextPath: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -42,12 +63,14 @@ async function linkGitHubMock() {
       "https://api.dicebear.com/9.x/initials/svg?seed=GH",
   });
 
-  redirect("/?github=linked");
+  redirect(nextPath);
 }
 
-export async function linkGitHub() {
+export async function linkGitHub(formData?: FormData) {
+  const nextPath = resolveSafeNextPath(formData);
+
   if (shouldMockOAuth("github")) {
-    await linkGitHubMock();
+    await linkGitHubMock(nextPath);
   }
 
   const supabase = await createClient();
@@ -62,19 +85,19 @@ export async function linkGitHub() {
   await ensureAppUser(user);
 
   if (user.identities?.some((identity) => identity.provider === "github")) {
-    redirect("/?github=linked");
+    redirect(nextPath);
   }
 
   const origin = await getAppOrigin();
   const { data, error } = await supabase.auth.linkIdentity({
     provider: "github",
     options: {
-      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/?github=linked")}`,
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   });
 
   if (error || !data.url) {
-    redirect("/?error=github_link");
+    redirect(githubLinkErrorPath(nextPath));
   }
 
   redirect(data.url);
