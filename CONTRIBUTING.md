@@ -115,14 +115,16 @@ Se o lint ou a mensagem falharem, o commit não é criado. Corrija e tente de no
 ## Ambiente local (resumo)
 
 ```bash
-cp .env.example .env
 yarn
+cp .env.example .env
 yarn db:start
+# preencha NEXT_PUBLIC_SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY
+# com `supabase status -o env`
 yarn db:push
 yarn dev
 ```
 
-Detalhes e variáveis OAuth estão no [README.md](./README.md).
+Detalhes, portas, OAuth mock e troubleshooting estão no [README.md](./README.md).
 
 ---
 
