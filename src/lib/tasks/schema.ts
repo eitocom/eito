@@ -1,3 +1,5 @@
+import "@/lib/openapi/zod-extend";
+
 import { z } from "zod";
 
 const githubIssueUrlPattern =
