@@ -76,7 +76,11 @@ function avatarInitial(login: LastLogin) {
   return source.charAt(0).toUpperCase();
 }
 
-export function LoginForm() {
+export function LoginForm({
+  mockOAuth = { github: false, google: false },
+}: {
+  mockOAuth?: { github: boolean; google: boolean };
+}) {
   const searchParams = useSearchParams();
   const authError = searchParams.get("error");
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -93,7 +97,9 @@ export function LoginForm() {
 
   const oauthError =
     authError === "oauth" || authError === "auth"
-      ? "Não foi possível autenticar com o provedor social. Verifique as credenciais OAuth."
+      ? mockOAuth.github || mockOAuth.google
+        ? "Não foi possível simular o login social. Confira SUPABASE_SERVICE_ROLE_KEY no .env (supabase status -o env)."
+        : "Não foi possível autenticar com o provedor social. Verifique as credenciais OAuth."
       : null;
 
   function handleOAuth(provider: OAuthProvider) {
@@ -152,6 +158,10 @@ export function LoginForm() {
               </p>
               <p className="truncate text-xs text-[oklch(0.75_0.02_95)]">
                 {providerLabel(lastLogin.method)}
+                {(lastLogin.method === "github" && mockOAuth.github) ||
+                (lastLogin.method === "google" && mockOAuth.google)
+                  ? " (simulado)"
+                  : null}
                 {lastLogin.name && lastLogin.email
                   ? ` · ${lastLogin.email}`
                   : null}
@@ -220,7 +230,12 @@ export function LoginForm() {
               >
                 {oauthPending
                   ? "Aguarde..."
-                  : `Logar como ${displayName(lastLogin)}`}
+                  : `Logar como ${displayName(lastLogin)}${
+                      (lastLogin.method === "github" && mockOAuth.github) ||
+                      (lastLogin.method === "google" && mockOAuth.google)
+                        ? " (simulado)"
+                        : ""
+                    }`}
               </Button>
             </>
           )}
@@ -312,6 +327,7 @@ export function LoginForm() {
             >
               <GitHubIcon className="size-4" />
               Continuar com GitHub
+              {mockOAuth.github ? " (simulado)" : null}
             </Button>
 
             <Button
@@ -324,6 +340,7 @@ export function LoginForm() {
             >
               <GoogleIcon className="size-4" />
               Continuar com Google
+              {mockOAuth.google ? " (simulado)" : null}
             </Button>
           </div>
 

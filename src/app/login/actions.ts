@@ -3,6 +3,12 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  MOCK_OAUTH_USERS,
+  shouldMockOAuth,
+  type OAuthProvider,
+} from "@/lib/auth/mock-oauth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState = {
@@ -10,7 +16,7 @@ export type AuthState = {
   success?: string;
 };
 
-export type OAuthProvider = "google" | "github";
+export type { OAuthProvider };
 
 async function getAppOrigin() {
   const headerStore = await headers();
@@ -75,7 +81,91 @@ export async function signUp(
   redirect("/");
 }
 
+async function signInWithMockOAuth(provider: OAuthProvider) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) {
+    redirect("/login?error=oauth");
+  }
+
+  const profile = MOCK_OAUTH_USERS[provider];
+  let admin;
+
+  try {
+    admin = createAdminClient();
+  } catch {
+    redirect("/login?error=oauth");
+  }
+
+  const { data: listed, error: listError } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  });
+
+  if (listError) {
+    redirect("/login?error=oauth");
+  }
+
+  const existing = listed.users.find((user) => user.email === profile.email);
+
+  if (existing) {
+    const { error: updateError } = await admin.auth.admin.updateUserById(
+      existing.id,
+      {
+        password: profile.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: profile.fullName,
+          name: profile.fullName,
+          avatar_url: profile.avatarUrl,
+        },
+        app_metadata: {
+          provider,
+          providers: [provider],
+        },
+      },
+    );
+
+    if (updateError) {
+      redirect("/login?error=oauth");
+    }
+  } else {
+    const { error: createError } = await admin.auth.admin.createUser({
+      email: profile.email,
+      password: profile.password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: profile.fullName,
+        name: profile.fullName,
+        avatar_url: profile.avatarUrl,
+      },
+      app_metadata: {
+        provider,
+        providers: [provider],
+      },
+    });
+
+    if (createError) {
+      redirect("/login?error=oauth");
+    }
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: profile.email,
+    password: profile.password,
+  });
+
+  if (error) {
+    redirect("/login?error=oauth");
+  }
+
+  redirect("/");
+}
+
 export async function signInWithOAuth(provider: OAuthProvider) {
+  if (shouldMockOAuth(provider)) {
+    await signInWithMockOAuth(provider);
+  }
+
   const supabase = await createClient();
   const origin = await getAppOrigin();
 

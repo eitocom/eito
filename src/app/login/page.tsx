@@ -1,8 +1,11 @@
 import { Suspense } from "react";
 
 import { LoginForm } from "@/app/login/login-form";
+import { getMockOAuthFlags } from "@/lib/auth/mock-oauth";
 
 export default function LoginPage() {
+  const mockOAuth = getMockOAuthFlags();
+
   return (
     <main className="relative flex min-h-full flex-1 overflow-hidden">
       <div
@@ -20,7 +23,7 @@ export default function LoginPage() {
 
       <section className="relative z-10 flex flex-1 items-center justify-center px-6 py-16">
         <Suspense fallback={null}>
-          <LoginForm />
+          <LoginForm mockOAuth={mockOAuth} />
         </Suspense>
       </section>
     </main>
