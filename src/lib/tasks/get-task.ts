@@ -21,6 +21,17 @@ export type TaskDetail = {
     title: string;
     ownerId: string;
   };
+  contributions: Array<{
+    id: string;
+    githubPrUrl: string;
+    status: string;
+    createdAt: Date;
+    user: {
+      id: string;
+      name: string;
+      username: string;
+    };
+  }>;
 };
 
 function mapAssignee(
@@ -69,6 +80,22 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
           ownerId: true,
         },
       },
+      contributions: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          githubPrUrl: true,
+          status: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -85,5 +112,16 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
     updatedAt: task.updatedAt,
     assignee: mapAssignee(task.assignee),
     project: task.project,
+    contributions: task.contributions.map((contribution) => ({
+      id: contribution.id,
+      githubPrUrl: contribution.githubPrUrl,
+      status: contribution.status,
+      createdAt: contribution.createdAt,
+      user: {
+        id: contribution.user.id,
+        name: contribution.user.name || contribution.user.username,
+        username: contribution.user.username,
+      },
+    })),
   };
 }
