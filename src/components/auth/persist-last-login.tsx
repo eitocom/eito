@@ -2,10 +2,7 @@
 
 import { useEffect } from "react";
 
-import {
-  setLastLogin,
-  type LastLoginMethod,
-} from "@/lib/auth/last-login";
+import { setLastLogin, type LastLoginMethod } from "@/lib/auth/last-login";
 import { createClient } from "@/lib/supabase/client";
 
 function resolveMethod(provider: unknown): LastLoginMethod {

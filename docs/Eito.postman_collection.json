@@ -1,0 +1,438 @@
+{
+  "info": {
+    "_postman_id": "6e2bb949-06e0-495b-9c92-a432da39eba8",
+    "name": "Eito",
+    "description": "Coleção da API do Eito (Next.js App Router).\n\n**Auth:** as rotas exigem sessão Supabase (cookie). Após login no browser (`http://localhost:3000`), copie o cookie da sessão (ex.: `sb-*-auth-token`) e cole na variável `sessionCookie`, ou use o Cookie Manager do Postman.\n\n**Variáveis úteis:** preencha `projectSlug`, `projectId` e `taskId` com IDs reais retornados pelas respostas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2789892"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "sessionCookie",
+      "value": ""
+    },
+    {
+      "key": "projectSlug",
+      "value": "meu-projeto"
+    },
+    {
+      "key": "projectId",
+      "value": ""
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "Projects",
+      "description": "CRUD de projetos (`/api/projects`).",
+      "item": [
+        {
+          "name": "List projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects"]
+            },
+            "description": "Lista todos os projetos. Requer autenticação (`401` sem sessão)."
+          },
+          "response": []
+        },
+        {
+          "name": "List my projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects?mine=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects"],
+              "query": [
+                {
+                  "key": "mine",
+                  "value": "1",
+                  "description": "Filtra apenas projetos do usuário autenticado."
+                }
+              ]
+            },
+            "description": "Lista apenas os projetos do usuário logado (`?mine=1`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Meu projeto open source\",\n  \"description\": \"Descrição com pelo menos vinte caracteres sobre o projeto.\",\n  \"githubRepoUrl\": \"https://github.com/org/repo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects"]
+            },
+            "description": "Cria um projeto. Exige GitHub conectado e sessão válida. Retorna `201` com o projeto (inclui `slug` e `id`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get project by slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects", "{{projectSlug}}"]
+            },
+            "description": "Detalhe do projeto por `slug`, incluindo tasks e assignee. `404` se não existir."
+          },
+          "response": []
+        },
+        {
+          "name": "Update project",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Meu projeto open source\",\n  \"description\": \"Descrição atualizada com pelo menos vinte caracteres.\",\n  \"githubRepoUrl\": \"https://github.com/org/repo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectSlug}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects", "{{projectSlug}}"]
+            },
+            "description": "Atualiza título, descrição e URL do repositório. Apenas o owner (`403` caso contrário). O `slug` permanece estável."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "description": "Criação, detalhe, edição, status e contribuições (`/api/tasks`).",
+      "item": [
+        {
+          "name": "Create task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"title\": \"Corrigir bug no login\",\n  \"description\": \"Descrição detalhada da tarefa com ao menos dez caracteres.\",\n  \"githubIssueUrl\": \"https://github.com/org/repo/issues/1\",\n  \"amountBrl\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Cria uma tarefa/bounty no projeto. Apenas o owner. `githubIssueUrl` pode ser string vazia. `amountBrl: 0` = voluntário. Status inicial: `OPEN`."
+          },
+          "response": []
+        },
+        {
+          "name": "Get task by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}"]
+            },
+            "description": "Detalhe da tarefa com projeto, assignee e contribuições. `404` se não existir."
+          },
+          "response": []
+        },
+        {
+          "name": "Update task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Corrigir bug no login\",\n  \"description\": \"Descrição atualizada da tarefa com ao menos dez caracteres.\",\n  \"githubIssueUrl\": \"https://github.com/org/repo/issues/1\",\n  \"amountBrl\": 75\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}"]
+            },
+            "description": "Atualiza campos da tarefa (não altera status/assignee). Apenas o owner do projeto."
+          },
+          "response": []
+        },
+        {
+          "name": "Status",
+          "description": "Transições via `PATCH /api/tasks/:id/status` com body discriminado por `action`.",
+          "item": [
+            {
+              "name": "Claim task",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "{{sessionCookie}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"claim\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tasks", "{{taskId}}", "status"]
+                },
+                "description": "Assume a tarefa: requer `OPEN` sem assignee. Define `assigneeId` e status `IN_PROGRESS`. `409` se não puder claim."
+              },
+              "response": []
+            },
+            {
+              "name": "Release task",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "{{sessionCookie}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"release\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tasks", "{{taskId}}", "status"]
+                },
+                "description": "Libera o responsável (assignee ou owner). Volta para `OPEN` quando aplicável."
+              },
+              "response": []
+            },
+            {
+              "name": "Set task status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "{{sessionCookie}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"setStatus\",\n  \"status\": \"UNDER_REVIEW\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tasks", "{{taskId}}", "status"]
+                },
+                "description": "Altera o status. Valores: `OPEN`, `IN_PROGRESS`, `UNDER_REVIEW`, `COMPLETED`, `CANCELLED`. Para cancelar, preferir a action `cancel`. Assignee ou owner."
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel task",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Cookie",
+                    "value": "{{sessionCookie}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"cancel\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tasks", "{{taskId}}", "status"]
+                },
+                "description": "Cancela a tarefa (`CANCELLED`). Apenas o owner. Não permite cancelar `COMPLETED`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Create contribution (PR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"githubPrUrl\": \"https://github.com/org/repo/pull/1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/contributions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "contributions"]
+            },
+            "description": "Registra a URL do Pull Request. Apenas o assignee; tarefa em `IN_PROGRESS` ou `UNDER_REVIEW`. Se estiver `IN_PROGRESS`, avança para `UNDER_REVIEW`. Retorna `201`."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
