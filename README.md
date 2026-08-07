@@ -173,6 +173,7 @@ Com `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` **vazios** e `NODE_ENV` de desenvolv
 - **Login social mock falha** — confira `SUPABASE_SERVICE_ROLE_KEY` no `.env` (`supabase status -o env` → `SERVICE_ROLE_KEY`).
 - **Docker parado** — o `yarn db:start` depende do Docker em execução.
 - **Chaves desatualizadas após reset do stack** — rode `supabase status -o env` de novo e atualize o `.env`.
+- **`/auth/callback` na Vercel: “This page isn’t working”** — `DATABASE_URL` provavelmente usa o host direto (`db.<ref>.supabase.co:5432`, IPv6). Na Vercel use o **Transaction pooler** (`…pooler.supabase.com:6543`, user `postgres.<ref>`). Veja o comentário em `.env.example`.
 
 ---
 
