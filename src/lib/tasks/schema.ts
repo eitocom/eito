@@ -34,3 +34,13 @@ export const createTaskApiSchema = createTaskSchema.extend({
 });
 
 export type CreateTaskApiInput = z.infer<typeof createTaskApiSchema>;
+
+export const updateTaskSchema = createTaskSchema;
+
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+
+export function normalizeGitHubIssueUrl(url: string) {
+  const trimmed = url.trim();
+  if (trimmed === "") return null;
+  return trimmed.replace(/\/+$/, "");
+}
