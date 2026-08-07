@@ -24,10 +24,12 @@ O Eito é um mutirão de código: conectamos mantenedores, startups e desenvolve
 
 ## Fluxo de trabalho (Git)
 
-1. Faça o **Fork** deste repositório.
-2. Crie uma branch a partir da `main`:
+1. Faça o **Fork** deste repositório (ou clone se tiver acesso de escrita).
+2. Parta da branch `develop` e crie a sua branch:
 
    ```bash
+   git checkout develop
+   git pull origin develop
    git checkout -b feat/nome-da-sua-feature
    # ou
    git checkout -b fix/descricao-do-bug
@@ -42,7 +44,7 @@ O Eito é um mutirão de código: conectamos mantenedores, startups e desenvolve
    yarn build
    ```
 
-5. Envie a branch para o seu fork e abra um **Pull Request** para a `main` do repositório oficial.
+5. Envie a branch e abra um **Pull Request** para a `develop` do repositório oficial.
 
 ---
 

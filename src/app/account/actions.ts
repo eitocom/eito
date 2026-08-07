@@ -3,10 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import {
-  ensureAppUser,
-  linkGitHubToAppUser,
-} from "@/lib/auth/app-user";
+import { ensureAppUser, linkGitHubToAppUser } from "@/lib/auth/app-user";
 import { shouldMockOAuth } from "@/lib/auth/mock-oauth";
 import { createClient } from "@/lib/supabase/server";
 

@@ -12,27 +12,34 @@ Se este PR resolve ou está associado a uma issue existente, mencione-a abaixo:
 
 - Fixes # (número da issue)
 
+> Use `Fixes #N` (ou `Closes` / `Resolves`) para fechar a issue automaticamente ao mergear em `develop`/`main`. Para só referenciar, use `Refs #N`.
+
 ---
 
 ### 🧪 Tipo de Alteração
 
-Marque com um `x` o tipo de mudança contida neste PR:
+Marque com um `x` o tipo de mudança contida neste PR (alinhado aos Conventional Commits):
 
-- [ ] 🐛 **Fix:** Correção de bug sem impacto em outras partes do código
+- [ ] 🐛 **Fix:** Correção de bug
 - [ ] 🚀 **Feat:** Nova funcionalidade
-- [ ] 🎨 **Style:** Alteração de UI/UX, CSS ou formatação visual
-- [ ] 🧹 **Refactor:** Reorganização ou melhoria de código existente sem alterar comportamento externo
-- [ ] 📚 **Docs:** Atualização de documentação, README ou guias
-- [ ] ⚙️ **Chore:** Configuração de ambiente, dependências ou scripts
+- [ ] 🎨 **Style:** Formatação, CSS ou UI sem mudança de lógica
+- [ ] 🧹 **Refactor:** Reorganização de código sem alterar comportamento externo
+- [ ] 📚 **Docs:** Documentação (README, CONTRIBUTING, templates, etc.)
+- [ ] ⚙️ **Chore:** Configuração, tooling, dependências ou scripts
+- [ ] 🧪 **Test:** Testes automatizados
+- [ ] ⚡ **Perf:** Melhoria de performance
 
 ---
 
 ### ✅ Checklist antes de solicitar revisão
 
-- [ ] Meu código segue os padrões do projeto e passou no `npm run lint`
+- [ ] Branch criada a partir de `develop` e PR apontando para `develop`
+- [ ] Commits no padrão Conventional Commits (`yarn commit` recomendado)
+- [ ] Passei no `yarn lint`
+- [ ] Verifiquei a formatação com `yarn format:check` (ou rodei `yarn format`)
 - [ ] Testei a alteração localmente e tudo está funcionando como esperado
-- [ ] Executei o `npm run build` e a compilação foi concluída sem erros de TypeScript
-- [ ] Adicionei/atualizei a documentação necessária se aplicável
+- [ ] Executei o `yarn build` e a compilação concluiu sem erros de TypeScript
+- [ ] Adicionei/atualizei a documentação necessária, se aplicável
 
 ---
 

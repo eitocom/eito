@@ -4,10 +4,7 @@ import { prisma } from "@/lib/prisma";
 import type { User as AppUser } from "@/generated/prisma/client";
 
 export type AppCapability =
-  | "browse"
-  | "claim_tasks"
-  | "submit_contributions"
-  | "create_projects";
+  "browse" | "claim_tasks" | "submit_contributions" | "create_projects";
 
 const BASE_CAPABILITIES: AppCapability[] = ["browse"];
 
@@ -18,7 +15,9 @@ const GITHUB_CAPABILITIES: AppCapability[] = [
 ];
 
 export function getGitHubIdentity(authUser: AuthUser) {
-  return authUser.identities?.find((identity) => identity.provider === "github");
+  return authUser.identities?.find(
+    (identity) => identity.provider === "github",
+  );
 }
 
 export function hasGitHubConnected(appUser: Pick<AppUser, "githubId">) {

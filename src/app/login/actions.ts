@@ -3,10 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import {
-  ensureAppUser,
-  linkGitHubToAppUser,
-} from "@/lib/auth/app-user";
+import { ensureAppUser, linkGitHubToAppUser } from "@/lib/auth/app-user";
 import {
   MOCK_OAUTH_USERS,
   shouldMockOAuth,

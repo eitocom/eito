@@ -18,6 +18,12 @@ Por que essa funcionalidade é útil? Quem se beneficia dela (dono do projeto, d
 
 Descreva como a funcionalidade deve funcionar na prática. Se houver telas, componentes ou fluxos visuais, detalhe aqui.
 
+Preferências do projeto (quando fizer sentido):
+
+- UI com [shadcn/ui](https://ui.shadcn.com/) + Tailwind CSS
+- Auth / sessão via Supabase (`src/lib/supabase`)
+- Commits com Conventional Commits (`yarn commit`)
+
 ### 🖼️ Mockups / Capturas de Tela (se aplicável)
 
 Adicione imagens, rascunhos ou links do Figma, se houver.
