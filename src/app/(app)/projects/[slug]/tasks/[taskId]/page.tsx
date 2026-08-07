@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
+import { TaskStatusActions } from "@/components/projects/task-status-actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,18 @@ export default async function TaskDetailPage({
   const isOwner = appUser?.id === task.project.ownerId;
   const isAssignee = appUser?.id === task.assignee?.id;
   const canClaim = Boolean(appUser && task.status === "OPEN" && !task.assignee);
+  const canManageStatus = Boolean(
+    (isOwner || isAssignee) &&
+    task.status !== "CANCELLED" &&
+    task.status !== "COMPLETED",
+  );
+  const canRelease = Boolean(
+    (isOwner || isAssignee) &&
+    task.assignee &&
+    task.status !== "COMPLETED" &&
+    task.status !== "CANCELLED",
+  );
+  const canCancel = Boolean(isOwner && task.status !== "COMPLETED");
   const isVolunteer = task.amountBrl <= 0;
 
   return (
@@ -94,36 +107,19 @@ export default async function TaskDetailPage({
               </div>
             </div>
 
-            <div
-              className="flex flex-wrap gap-2"
-              data-task-actions
-              data-can-claim={canClaim ? "true" : "false"}
-              data-is-owner={isOwner ? "true" : "false"}
-              data-is-assignee={isAssignee ? "true" : "false"}
-            >
-              {canClaim ? (
-                <Button
-                  type="button"
-                  disabled
-                  title="Disponível na próxima entrega"
-                >
-                  Pegar bounty
-                </Button>
-              ) : null}
-              {isOwner || isAssignee ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled
-                  title="Disponível na próxima entrega"
-                >
-                  Alterar status
-                </Button>
-              ) : null}
+            <div className="flex flex-col items-stretch gap-2 sm:items-end">
+              <TaskStatusActions
+                taskId={task.id}
+                status={task.status}
+                canClaim={canClaim}
+                canManageStatus={canManageStatus || canCancel}
+                canCancel={canCancel}
+                canRelease={canRelease}
+              />
               {isOwner ? (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   disabled
                   title="Disponível na próxima entrega"
                 >
