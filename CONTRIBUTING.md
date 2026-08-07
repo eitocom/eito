@@ -33,26 +33,76 @@ O Eito é um mutirão de código: conectamos mantenedores, startups e desenvolve
    git checkout -b fix/descricao-do-bug
    ```
 
-3. Use **Conventional Commits**, por exemplo:
-   - `feat: adiciona card de projetos`
-   - `fix: corrige callback OAuth do Supabase`
-   - `docs: atualiza instruções do README`
-
+3. Faça commits seguindo o padrão descrito em [Padrão de commits](#padrão-de-commits).
 4. Antes de abrir o PR, valide localmente:
 
    ```bash
-   npm run lint
-   npm run format:check
-   npm run build
+   yarn lint
+   yarn format:check
+   yarn build
    ```
 
 5. Envie a branch para o seu fork e abra um **Pull Request** para a `main` do repositório oficial.
 
 ---
 
+## Padrão de commits
+
+O projeto usa **[Conventional Commits](https://www.conventionalcommits.org/)**, com validação automática via **Husky** + **Commitlint**. Commits fora do padrão são rejeitados no `commit-msg`.
+
+### Como criar um commit
+
+Prefira o Commitizen (assistente interativo):
+
+```bash
+yarn commit
+```
+
+Isso abre um questionário (tipo, escopo opcional, descrição, etc.) e gera a mensagem no formato correto.
+
+Se preferir `git commit` manualmente, a mensagem **deve** seguir o formato:
+
+```text
+tipo(escopo opcional): descrição curta
+```
+
+Exemplos:
+
+- `feat: adiciona card de projetos`
+- `fix: corrige callback OAuth do Supabase`
+- `docs: atualiza instruções do README`
+- `chore(auth): configura commitlint`
+
+### Tipos permitidos
+
+| Tipo       | Quando usar                                             |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | Nova funcionalidade                                     |
+| `fix`      | Correção de bug                                         |
+| `docs`     | Documentação (README, CONTRIBUTING, etc.)               |
+| `style`    | Formatação, CSS ou UI sem mudança de lógica             |
+| `refactor` | Reestruturação de código existente                      |
+| `perf`     | Melhoria de performance                                 |
+| `test`     | Testes automatizados                                    |
+| `build`    | Build, pacotes ou Docker                                |
+| `ci`       | CI/CD (GitHub Actions, etc.)                            |
+| `chore`    | Tarefas diversas (configs, `.gitignore`, tooling, etc.) |
+| `revert`   | Reverter um commit anterior                             |
+
+### Hooks locais (Husky)
+
+Após `yarn install`, os hooks ficam ativos:
+
+- **pre-commit** — executa `yarn lint`
+- **commit-msg** — valida a mensagem com Commitlint
+
+Se o lint ou a mensagem falharem, o commit não é criado. Corrija e tente de novo.
+
+---
+
 ## Padronização e estilo
 
-- Siga o ESLint e o Prettier do projeto (`npm run lint`, `npm run format`).
+- Siga o ESLint e o Prettier do projeto (`yarn lint`, `yarn format`).
 - Coloque componentes React em `src/components` (UI do shadcn em `src/components/ui`).
 - Prefira componentes existentes do `shadcn/ui` antes de criar novos.
 - Lógica de autenticação e clientes Supabase ficam em `src/lib/supabase`.
@@ -64,10 +114,10 @@ O Eito é um mutirão de código: conectamos mantenedores, startups e desenvolve
 
 ```bash
 cp .env.example .env
-npm install
-npm run db:start
-npm run db:push
-npm run dev
+yarn
+yarn db:start
+yarn db:push
+yarn dev
 ```
 
 Detalhes e variáveis OAuth estão no [README.md](./README.md).

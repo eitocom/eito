@@ -2,9 +2,9 @@
 
 import {
   useActionState,
-  useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   useTransition,
 } from "react";
 import { useSearchParams } from "next/navigation";
@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import {
   clearLastLogin,
   getLastLogin,
+  subscribeLastLogin,
   type LastLogin,
 } from "@/lib/auth/last-login";
 
@@ -87,13 +88,13 @@ export function LoginForm({
   const [oauthPending, startOAuth] = useTransition();
   const action = mode === "login" ? signIn : signUp;
   const [state, formAction, pending] = useActionState(action, initialState);
-  const [lastLogin, setLastLoginState] = useState<LastLogin | null>(null);
+  const lastLogin = useSyncExternalStore(
+    subscribeLastLogin,
+    getLastLogin,
+    () => null,
+  );
   const [email, setEmail] = useState("");
   const passwordRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setLastLoginState(getLastLogin());
-  }, []);
 
   const oauthError =
     authError === "oauth" || authError === "auth"
@@ -118,7 +119,6 @@ export function LoginForm({
 
   function handleUseAnotherAccount() {
     clearLastLogin();
-    setLastLoginState(null);
     setEmail("");
   }
 
