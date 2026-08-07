@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
 
 import { ProjectOwnerActions } from "@/components/projects/project-owner-actions";
+import { ClaimTaskButton } from "@/components/projects/claim-task-button";
 import {
   KANBAN_COLUMN_STATUSES,
   ProjectKanbanBoard,
@@ -67,6 +68,11 @@ export default async function ProjectDetailPage({
                     avatarUrl: task.assignee.avatarUrl,
                   }
                 : null
+            }
+            footer={
+              appUser && task.status === "OPEN" && !task.assignee ? (
+                <ClaimTaskButton taskId={task.id} />
+              ) : null
             }
           />
         )),

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
@@ -30,6 +31,7 @@ export type TaskBountyCardProps = {
   githubIssueUrl?: string | null;
   assignee?: TaskBountyAssignee | null;
   href?: string;
+  footer?: ReactNode;
   className?: string;
 };
 
@@ -49,6 +51,7 @@ export function TaskBountyCard({
   githubIssueUrl,
   assignee,
   href,
+  footer,
   className,
 }: TaskBountyCardProps) {
   const isVolunteer = amountBrl <= 0;
@@ -121,11 +124,13 @@ export function TaskBountyCard({
         </CardContent>
       )}
 
-      {!assignee && !githubIssueUrl ? (
+      {!assignee && !githubIssueUrl && !footer ? (
         <CardFooter className="text-muted-foreground text-xs">
           Aguardando responsável
         </CardFooter>
       ) : null}
+
+      {footer ? <CardFooter className="pt-0">{footer}</CardFooter> : null}
     </Card>
   );
 }
