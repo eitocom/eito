@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
 import { TaskStatusActions } from "@/components/projects/task-status-actions";
+import { EditTaskDialog } from "@/components/projects/edit-task-dialog";
+import { SubmitContributionDialog } from "@/components/projects/submit-contribution-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,6 +62,10 @@ export default async function TaskDetailPage({
     task.status !== "CANCELLED",
   );
   const canCancel = Boolean(isOwner && task.status !== "COMPLETED");
+  const canSubmitContribution = Boolean(
+    isAssignee &&
+    (task.status === "IN_PROGRESS" || task.status === "UNDER_REVIEW"),
+  );
   const isVolunteer = task.amountBrl <= 0;
 
   return (
@@ -117,14 +123,15 @@ export default async function TaskDetailPage({
                 canRelease={canRelease}
               />
               {isOwner ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled
-                  title="Disponível na próxima entrega"
-                >
-                  Editar
-                </Button>
+                <EditTaskDialog
+                  taskId={task.id}
+                  initialValues={{
+                    title: task.title,
+                    description: task.description,
+                    githubIssueUrl: task.githubIssueUrl ?? "",
+                    amountBrl: task.amountBrl,
+                  }}
+                />
               ) : null}
             </div>
           </div>
@@ -162,6 +169,9 @@ export default async function TaskDetailPage({
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {canSubmitContribution ? (
+              <SubmitContributionDialog taskId={task.id} />
+            ) : null}
             {task.githubIssueUrl ? (
               <Button asChild variant="outline">
                 <a
@@ -180,6 +190,44 @@ export default async function TaskDetailPage({
               </Link>
             </Button>
           </div>
+        </div>
+
+        <div className="space-y-3">
+          <h2 className="font-heading text-lg font-semibold tracking-tight">
+            Contribuições
+          </h2>
+          {task.contributions.length === 0 ? (
+            <p
+              role="status"
+              className="border-border bg-muted/40 text-muted-foreground rounded-lg border px-4 py-3 text-sm leading-relaxed"
+            >
+              Ainda não há Pull Requests registrados nesta tarefa.
+            </p>
+          ) : (
+            <ul className="border-border divide-y rounded-xl border">
+              {task.contributions.map((contribution) => (
+                <li
+                  key={contribution.id}
+                  className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0 space-y-1">
+                    <a
+                      href={contribution.githubPrUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground hover:underline"
+                    >
+                      {contribution.githubPrUrl}
+                    </a>
+                    <p className="text-muted-foreground text-xs">
+                      por {contribution.user.name}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{contribution.status}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
     </main>

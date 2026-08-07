@@ -35,6 +35,10 @@ export async function GET(
       ...task,
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
+      contributions: task.contributions.map((contribution) => ({
+        ...contribution,
+        createdAt: contribution.createdAt.toISOString(),
+      })),
     },
   });
 }
