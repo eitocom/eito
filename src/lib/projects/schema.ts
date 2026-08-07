@@ -25,6 +25,10 @@ export const createProjectSchema = z.object({
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 
+export const updateProjectSchema = createProjectSchema;
+
+export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
+
 export function normalizeGitHubRepoUrl(url: string) {
   return url.trim().replace(/\/+$/, "");
 }
