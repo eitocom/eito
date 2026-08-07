@@ -10,6 +10,12 @@ export type LastLogin = {
 
 const STORAGE_KEY = "eito:lastLogin";
 
+const listeners = new Set<() => void>();
+
+function emitLastLoginChange() {
+  listeners.forEach((listener) => listener());
+}
+
 function isLastLoginMethod(value: unknown): value is LastLoginMethod {
   return value === "email" || value === "github" || value === "google";
 }
@@ -50,9 +56,26 @@ export function setLastLogin(login: Omit<LastLogin, "savedAt">): void {
   };
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  emitLastLoginChange();
 }
 
 export function clearLastLogin(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
+  emitLastLoginChange();
+}
+
+export function subscribeLastLogin(onStoreChange: () => void) {
+  listeners.add(onStoreChange);
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", onStoreChange);
+  }
+
+  return () => {
+    listeners.delete(onStoreChange);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", onStoreChange);
+    }
+  };
 }
