@@ -23,9 +23,33 @@ O **Eito** conecta mantenedores de projetos, startups e desenvolvedores no Brasi
 - **UI:** [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
 - **Banco e Auth:** [Supabase](https://supabase.com/) (PostgreSQL + Auth, com OAuth GitHub e Google)
 - **ORM:** [Prisma](https://www.prisma.io/)
+- **Validação / API docs:** [Zod](https://zod.dev/) + [@asteasolutions/zod-to-openapi](https://github.com/asteasolutions/zod-to-openapi) + [Stoplight Elements](https://stoplight.io/open-source/elements) (sem Swagger UI)
 - **Package manager:** [Yarn](https://yarnpkg.com/) `1.22` (use Yarn; o repositório não usa `npm`/`pnpm`)
 - **Ambiente local:** [Supabase CLI](https://supabase.com/docs/guides/cli) + Docker
 - **Commits:** Conventional Commits via Commitizen + Husky + Commitlint
+
+---
+
+## Documentação da API
+
+Com o app rodando (`yarn dev`), a especificação OpenAPI é gerada a partir dos schemas Zod e exibida de forma interativa:
+
+| Recurso                            | URL / caminho                                                              | Descrição                               |
+| ---------------------------------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| UI interativa (Stoplight Elements) | [http://127.0.0.1:3000/docs](http://127.0.0.1:3000/docs)                   | Explore endpoints, schemas e Try it     |
+| Spec OpenAPI (JSON)                | [http://127.0.0.1:3000/api/openapi](http://127.0.0.1:3000/api/openapi)     | Documento OpenAPI 3.1 gerado em runtime |
+| Coleção Postman                    | [`docs/Eito.postman_collection.json`](./docs/Eito.postman_collection.json) | Importe no Postman para chamar a API    |
+
+`/docs` e `/api/openapi` são **públicos** (não exigem login para visualizar). As rotas de negócio (`/api/projects`, `/api/tasks`, etc.) continuam autenticadas via sessão Supabase (cookie).
+
+Código relacionado:
+
+- Registry e paths: `src/lib/openapi/document.ts`
+- Extensão Zod para OpenAPI: `src/lib/openapi/zod-extend.ts`
+- Route handler da spec: `src/app/api/openapi/route.ts`
+- Página Stoplight: `src/app/docs/page.tsx`
+
+Ao adicionar ou alterar uma rota de API, atualize o registro em `src/lib/openapi/document.ts` e, se fizer sentido, a coleção Postman. Detalhes no [CONTRIBUTING.md](./CONTRIBUTING.md#documentação-da-api).
 
 ---
 
@@ -104,7 +128,7 @@ O **Eito** conecta mantenedores de projetos, startups e desenvolvedores no Brasi
    yarn dev
    ```
 
-Acesse [http://127.0.0.1:3000](http://127.0.0.1:3000). Sem sessão, a app redireciona para `/login`.
+Acesse [http://127.0.0.1:3000](http://127.0.0.1:3000). Sem sessão, a app redireciona para `/login`. A documentação da API fica em [http://127.0.0.1:3000/docs](http://127.0.0.1:3000/docs).
 
 ### Login local (OAuth mock)
 
@@ -117,13 +141,15 @@ Com `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` **vazios** e `NODE_ENV` de desenvolv
 
 ### Portas locais
 
-| Serviço       | URL / porta            |
-| ------------- | ---------------------- |
-| App (Next.js) | http://127.0.0.1:3000  |
-| Supabase API  | http://127.0.0.1:54321 |
-| Postgres      | `127.0.0.1:54322`      |
-| Studio        | http://127.0.0.1:54323 |
-| Mailpit       | http://127.0.0.1:54324 |
+| Serviço        | URL / porta                       |
+| -------------- | --------------------------------- |
+| App (Next.js)  | http://127.0.0.1:3000             |
+| Docs da API    | http://127.0.0.1:3000/docs        |
+| OpenAPI (JSON) | http://127.0.0.1:3000/api/openapi |
+| Supabase API   | http://127.0.0.1:54321            |
+| Postgres       | `127.0.0.1:54322`                 |
+| Studio         | http://127.0.0.1:54323            |
+| Mailpit        | http://127.0.0.1:54324            |
 
 ### Scripts úteis
 

@@ -109,6 +109,31 @@ Se o lint ou a mensagem falharem, o commit não é criado. Corrija e tente de no
 - Prefira componentes existentes do `shadcn/ui` antes de criar novos.
 - Lógica de autenticação e clientes Supabase ficam em `src/lib/supabase`.
 - Schema e acesso a dados: Prisma em `prisma/` e client em `src/lib/prisma.ts`.
+- Validação de payload de API com **Zod** (ex.: `src/lib/projects/schema.ts`, `src/lib/tasks/schema.ts`).
+
+---
+
+## Documentação da API
+
+A especificação OpenAPI é gerada a partir dos schemas Zod (`@asteasolutions/zod-to-openapi`) e exibida com **Stoplight Elements** em `/docs` (não usamos Swagger UI).
+
+| Artefato         | Onde                                          |
+| ---------------- | --------------------------------------------- |
+| UI               | `http://127.0.0.1:3000/docs` (com `yarn dev`) |
+| JSON OpenAPI 3.1 | `http://127.0.0.1:3000/api/openapi`           |
+| Coleção Postman  | `docs/Eito.postman_collection.json`           |
+| Registry / paths | `src/lib/openapi/document.ts`                 |
+
+### Ao criar ou alterar uma rota `/api/...`
+
+1. Defina ou reutilize o schema Zod (com `import "@/lib/openapi/zod-extend"` no topo do arquivo de schema, para o `.openapi()` funcionar no Zod 4).
+2. Registre o path e o body/respostas em `src/lib/openapi/document.ts` (`openApiRegistry.registerPath`).
+3. Confira em `/docs` e em `/api/openapi` se o endpoint aparece corretamente.
+4. Se a rota for útil para testes manuais, atualize `docs/Eito.postman_collection.json` (variáveis `baseUrl`, `sessionCookie`, `projectSlug`, `projectId`, `taskId`).
+
+`/docs` e `/api/openapi` são públicos no middleware; as rotas de negócio permanecem autenticadas (cookie de sessão Supabase). No Postman/Try it, autentique-se na app e copie o cookie de sessão para a variável `sessionCookie` (ou Cookie Manager).
+
+No Pull Request que mexe em API, marque no checklist se a OpenAPI (e Postman, se aplicável) foi atualizada.
 
 ---
 
