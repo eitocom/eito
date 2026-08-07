@@ -27,6 +27,7 @@ import {
 } from "@/lib/auth/last-login";
 
 const initialState: AuthState = {};
+const getServerLastLogin = () => null;
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -91,7 +92,7 @@ export function LoginForm({
   const lastLogin = useSyncExternalStore(
     subscribeLastLogin,
     getLastLogin,
-    () => null,
+    getServerLastLogin,
   );
   const [email, setEmail] = useState("");
   const passwordRef = useRef<HTMLInputElement>(null);

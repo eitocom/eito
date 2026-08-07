@@ -1,5 +1,4 @@
 import { linkGitHub } from "@/app/account/actions";
-import { signOut } from "@/app/login/actions";
 import { PersistLastLogin } from "@/components/auth/persist-last-login";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,16 +37,6 @@ export default async function HomePage({
   return (
     <main className="flex flex-1 flex-col">
       <PersistLastLogin />
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
-        <p className="font-heading text-xl font-semibold tracking-tight">
-          Eito
-        </p>
-        <form action={signOut}>
-          <Button type="submit" variant="outline" size="sm">
-            Sair
-          </Button>
-        </form>
-      </header>
 
       <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-8 px-6 py-16">
         <div className="space-y-3">
@@ -56,14 +45,14 @@ export default async function HomePage({
           </h1>
           <p className="text-muted-foreground leading-relaxed">
             Você entrou como{" "}
-            <span className="font-medium text-foreground">
+            <span className="text-foreground font-medium">
               {appUser?.name || appUser?.email || user?.email}
             </span>
             {appUser?.username ? (
               <>
                 {" "}
                 (@
-                <span className="font-medium text-foreground">
+                <span className="text-foreground font-medium">
                   {appUser.username}
                 </span>
                 )
@@ -76,7 +65,7 @@ export default async function HomePage({
         {params.github === "linked" ? (
           <p
             role="status"
-            className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm"
+            className="border-border bg-muted/40 rounded-lg border px-3 py-2 text-sm"
           >
             GitHub conectado. Habilidades de contribuição liberadas.
           </p>
@@ -85,7 +74,7 @@ export default async function HomePage({
         {params.error === "github_link" ? (
           <p
             role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            className="border-destructive/30 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
           >
             Não foi possível conectar o GitHub. Tente novamente.
           </p>
@@ -97,13 +86,13 @@ export default async function HomePage({
               Conta GitHub
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Login por e-mail ou Google já basta para entrar. Conectar o
-              GitHub desbloqueia assumir tarefas, enviar PRs e criar projetos.
+              Login por e-mail ou Google já basta para entrar. Conectar o GitHub
+              desbloqueia assumir tarefas, enviar PRs e criar projetos.
             </p>
           </div>
 
           {githubConnected ? (
-            <div className="rounded-xl border border-border px-4 py-3 text-sm">
+            <div className="border-border rounded-xl border px-4 py-3 text-sm">
               Conectado como{" "}
               <span className="font-medium">@{appUser?.username}</span>
               {appUser?.githubId ? (
@@ -135,7 +124,7 @@ export default async function HomePage({
               return (
                 <li
                   key={capability}
-                  className="flex items-start justify-between gap-4 border-b border-border py-3 last:border-b-0"
+                  className="border-border flex items-start justify-between gap-4 border-b py-3 last:border-b-0"
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-medium">{copy.title}</p>

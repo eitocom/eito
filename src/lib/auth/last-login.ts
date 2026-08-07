@@ -12,6 +12,10 @@ const STORAGE_KEY = "eito:lastLogin";
 
 const listeners = new Set<() => void>();
 
+/** Cached snapshot for useSyncExternalStore — must be referentially stable. */
+let cachedRaw: string | null | undefined;
+let cachedSnapshot: LastLogin | null = null;
+
 function emitLastLoginChange() {
   listeners.forEach((listener) => listener());
 }
@@ -33,18 +37,39 @@ function isLastLogin(value: unknown): value is LastLogin {
   );
 }
 
-export function getLastLogin(): LastLogin | null {
+function readRaw(): string | null {
   if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function parseLastLogin(raw: string | null): LastLogin | null {
+  if (!raw) return null;
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-
     const parsed: unknown = JSON.parse(raw);
     return isLastLogin(parsed) ? parsed : null;
   } catch {
     return null;
   }
+}
+
+function syncCacheFromStorage() {
+  const raw = readRaw();
+  if (raw === cachedRaw) return;
+
+  cachedRaw = raw;
+  cachedSnapshot = parseLastLogin(raw);
+}
+
+export function getLastLogin(): LastLogin | null {
+  if (typeof window === "undefined") return null;
+
+  syncCacheFromStorage();
+  return cachedSnapshot;
 }
 
 export function setLastLogin(login: Omit<LastLogin, "savedAt">): void {
@@ -55,27 +80,42 @@ export function setLastLogin(login: Omit<LastLogin, "savedAt">): void {
     savedAt: Date.now(),
   };
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  const raw = JSON.stringify(payload);
+  window.localStorage.setItem(STORAGE_KEY, raw);
+  cachedRaw = raw;
+  cachedSnapshot = payload;
   emitLastLoginChange();
 }
 
 export function clearLastLogin(): void {
   if (typeof window === "undefined") return;
+
   window.localStorage.removeItem(STORAGE_KEY);
+  cachedRaw = null;
+  cachedSnapshot = null;
+  emitLastLoginChange();
+}
+
+function handleStorageEvent(event: StorageEvent) {
+  if (event.key !== null && event.key !== STORAGE_KEY) return;
+
+  cachedRaw = undefined;
+  syncCacheFromStorage();
   emitLastLoginChange();
 }
 
 export function subscribeLastLogin(onStoreChange: () => void) {
+  const shouldAttach = listeners.size === 0;
   listeners.add(onStoreChange);
 
-  if (typeof window !== "undefined") {
-    window.addEventListener("storage", onStoreChange);
+  if (shouldAttach && typeof window !== "undefined") {
+    window.addEventListener("storage", handleStorageEvent);
   }
 
   return () => {
     listeners.delete(onStoreChange);
-    if (typeof window !== "undefined") {
-      window.removeEventListener("storage", onStoreChange);
+    if (listeners.size === 0 && typeof window !== "undefined") {
+      window.removeEventListener("storage", handleStorageEvent);
     }
   };
 }
