@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +30,7 @@ export type ProjectCardProps = {
   owner: ProjectCardOwner;
   stats: ProjectCardStats;
   githubRepoUrl: string;
+  href?: string;
   className?: string;
 };
 
@@ -57,6 +59,7 @@ export function ProjectCard({
   owner,
   stats,
   githubRepoUrl,
+  href,
   className,
 }: ProjectCardProps) {
   const totalValue = currencyFormatter.format(stats.totalBountyValue);
@@ -74,7 +77,15 @@ export function ProjectCard({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 space-y-1">
-            <CardTitle className="truncate">{title}</CardTitle>
+            {href ? (
+              <CardTitle className="truncate">
+                <Link href={href} className="hover:underline">
+                  {title}
+                </Link>
+              </CardTitle>
+            ) : (
+              <CardTitle className="truncate">{title}</CardTitle>
+            )}
             <p className="text-muted-foreground truncate text-xs">
               {owner.name}
             </p>
@@ -95,10 +106,15 @@ export function ProjectCard({
         </div>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2 sm:flex-row">
+        {href ? (
+          <Button asChild size="sm" className="w-full">
+            <Link href={href}>Ver projeto</Link>
+          </Button>
+        ) : null}
         <Button asChild variant="outline" size="sm" className="w-full">
           <a href={githubRepoUrl} target="_blank" rel="noopener noreferrer">
-            Ver no GitHub
+            GitHub
             <ExternalLink data-icon="inline-end" />
           </a>
         </Button>
