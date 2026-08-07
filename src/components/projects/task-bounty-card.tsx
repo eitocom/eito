@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,6 +29,7 @@ export type TaskBountyCardProps = {
   amountBrl: number;
   githubIssueUrl?: string | null;
   assignee?: TaskBountyAssignee | null;
+  href?: string;
   className?: string;
 };
 
@@ -46,6 +48,7 @@ export function TaskBountyCard({
   amountBrl,
   githubIssueUrl,
   assignee,
+  href,
   className,
 }: TaskBountyCardProps) {
   const isVolunteer = amountBrl <= 0;
@@ -54,7 +57,16 @@ export function TaskBountyCard({
     <Card size="sm" className={cn("gap-3", className)}>
       <CardHeader className="gap-2">
         <CardTitle className="line-clamp-2 text-sm leading-snug">
-          {title}
+          {href ? (
+            <Link
+              href={href}
+              className="hover:text-foreground/80 transition-colors"
+            >
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
         </CardTitle>
         {isVolunteer ? (
           <Badge variant="secondary">Voluntário</Badge>
