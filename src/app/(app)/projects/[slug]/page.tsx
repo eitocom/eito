@@ -59,6 +59,7 @@ export default async function ProjectDetailPage({
             title={task.title}
             amountBrl={task.amountBrl}
             githubIssueUrl={task.githubIssueUrl}
+            href={`/projects/${project.slug}/tasks/${task.id}`}
             assignee={
               task.assignee
                 ? {
