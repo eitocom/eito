@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getTaskById } from "@/lib/tasks/get-task";
+import { updateTaskForUser } from "@/lib/tasks/update-task";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
@@ -34,6 +35,44 @@ export async function GET(
       ...task,
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
+    },
+  });
+}
+
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Body JSON inválido." }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { id } = await context.params;
+  const result = await updateTaskForUser(user, id, body);
+
+  if (!result.ok) {
+    return NextResponse.json(
+      {
+        error: result.error,
+        ...(result.fieldErrors ? { fieldErrors: result.fieldErrors } : {}),
+      },
+      { status: result.status },
+    );
+  }
+
+  return NextResponse.json({
+    task: {
+      ...result.task,
+      updatedAt: result.task.updatedAt.toISOString(),
     },
   });
 }
