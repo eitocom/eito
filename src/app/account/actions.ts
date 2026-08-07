@@ -1,22 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getAppOrigin } from "@/lib/auth/app-origin";
 import { ensureAppUser, linkGitHubToAppUser } from "@/lib/auth/app-user";
 import { shouldMockOAuth } from "@/lib/auth/mock-oauth";
 import { createClient } from "@/lib/supabase/server";
-
-async function getAppOrigin() {
-  const headerStore = await headers();
-  const origin = headerStore.get("origin");
-  if (origin) return origin;
-
-  return (
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
-    "http://127.0.0.1:3000"
-  );
-}
 
 function resolveSafeNextPath(formData?: FormData) {
   const rawNext = formData?.get("next");
