@@ -1,4 +1,5 @@
 import { signOut } from "@/app/login/actions";
+import { PersistLastLogin } from "@/components/auth/persist-last-login";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,6 +11,7 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-1 flex-col">
+      <PersistLastLogin />
       <header className="flex items-center justify-between border-b border-border px-6 py-4">
         <p className="font-heading text-xl font-semibold tracking-tight">
           Eito

@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useSearchParams } from "next/navigation";
 
 import {
@@ -13,6 +19,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  clearLastLogin,
+  getLastLogin,
+  type LastLogin,
+} from "@/lib/auth/last-login";
 
 const initialState: AuthState = {};
 
@@ -50,6 +61,21 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
+function providerLabel(method: LastLogin["method"]) {
+  if (method === "github") return "GitHub";
+  if (method === "google") return "Google";
+  return "E-mail";
+}
+
+function displayName(login: LastLogin) {
+  return login.name || login.email || "conta salva";
+}
+
+function avatarInitial(login: LastLogin) {
+  const source = login.name || login.email || "?";
+  return source.charAt(0).toUpperCase();
+}
+
 export function LoginForm() {
   const searchParams = useSearchParams();
   const authError = searchParams.get("error");
@@ -57,6 +83,13 @@ export function LoginForm() {
   const [oauthPending, startOAuth] = useTransition();
   const action = mode === "login" ? signIn : signUp;
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [lastLogin, setLastLoginState] = useState<LastLogin | null>(null);
+  const [email, setEmail] = useState("");
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setLastLoginState(getLastLogin());
+  }, []);
 
   const oauthError =
     authError === "oauth" || authError === "auth"
@@ -69,133 +102,258 @@ export function LoginForm() {
     });
   }
 
+  function handleLoginAs() {
+    if (!lastLogin) return;
+
+    if (lastLogin.method === "github" || lastLogin.method === "google") {
+      handleOAuth(lastLogin.method);
+    }
+  }
+
+  function handleUseAnotherAccount() {
+    clearLastLogin();
+    setLastLoginState(null);
+    setEmail("");
+  }
+
+  const showLastLogin = mode === "login" && lastLogin;
+
   return (
     <div className="w-full max-w-sm space-y-8">
       <div className="space-y-2">
-        <p className="font-heading text-4xl font-semibold tracking-tight text-[oklch(0.98_0.01_95)] sm:text-5xl">
-          Eito
+        <p className="font-heading border-border border-t border-b py-4 text-center text-4xl font-semibold tracking-tight text-[oklch(0.98_0.01_95)] sm:text-5xl">
+          eito
         </p>
-        <p className="text-sm leading-relaxed text-[oklch(0.85_0.02_95)]">
+        <p className="text-center text-sm leading-relaxed text-[oklch(0.85_0.02_95)]">
           {mode === "login"
             ? "Entre para acompanhar projetos, tarefas e contribuições."
             : "Crie sua conta para começar a contribuir no mutirão."}
         </p>
       </div>
 
-      <div className="space-y-3">
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          disabled={pending || oauthPending}
-          onClick={() => handleOAuth("github")}
-          className="h-10 w-full border-[oklch(1_0_0/0.14)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] hover:bg-[oklch(1_0_0/0.1)] hover:text-[oklch(0.98_0.01_95)]"
-        >
-          <GitHubIcon className="size-4" />
-          Continuar com GitHub
-        </Button>
+      {showLastLogin ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-xl border border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] px-3 py-3">
+            {lastLogin.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={lastLogin.avatarUrl}
+                alt=""
+                className="size-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex size-10 items-center justify-center rounded-full bg-[oklch(0.78_0.12_130/0.25)] text-sm font-semibold text-[oklch(0.88_0.1_130)]">
+                {avatarInitial(lastLogin)}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-[oklch(0.98_0.01_95)]">
+                {displayName(lastLogin)}
+              </p>
+              <p className="truncate text-xs text-[oklch(0.75_0.02_95)]">
+                {providerLabel(lastLogin.method)}
+                {lastLogin.name && lastLogin.email
+                  ? ` · ${lastLogin.email}`
+                  : null}
+              </p>
+            </div>
+          </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          disabled={pending || oauthPending}
-          onClick={() => handleOAuth("google")}
-          className="h-10 w-full border-[oklch(1_0_0/0.14)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] hover:bg-[oklch(1_0_0/0.1)] hover:text-[oklch(0.98_0.01_95)]"
-        >
-          <GoogleIcon className="size-4" />
-          Continuar com Google
-        </Button>
-      </div>
+          {lastLogin.method === "email" ? (
+            <form action={formAction} className="space-y-4">
+              <input type="hidden" name="email" value={lastLogin.email ?? ""} />
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-[oklch(0.9_0.015_95)]">
+                  Senha
+                </Label>
+                <Input
+                  ref={passwordRef}
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  minLength={6}
+                  autoFocus
+                  placeholder="••••••••"
+                  className="h-10 border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] placeholder:text-[oklch(0.75_0.02_95)]"
+                />
+              </div>
 
-      <div className="flex items-center gap-3 text-[oklch(0.75_0.02_95)]">
-        <div className="h-px flex-1 bg-[oklch(1_0_0/0.12)]" />
-        <span className="text-xs tracking-wide uppercase">ou</span>
-        <div className="h-px flex-1 bg-[oklch(1_0_0/0.12)]" />
-      </div>
+              {state.error || oauthError ? (
+                <p
+                  role="alert"
+                  className="rounded-lg bg-[oklch(0.45_0.14_25/0.25)] px-3 py-2 text-sm text-[oklch(0.92_0.05_40)]"
+                >
+                  {state.error ?? oauthError}
+                </p>
+              ) : null}
 
-      <form action={formAction} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-[oklch(0.9_0.015_95)]">
-            E-mail
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="voce@email.com"
-            className="h-10 border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] placeholder:text-[oklch(0.75_0.02_95)]"
-          />
-        </div>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={pending || oauthPending}
+                className="h-10 w-full bg-[oklch(0.78_0.12_130)] text-[oklch(0.22_0.03_140)] hover:bg-[oklch(0.84_0.11_130)]"
+              >
+                {pending
+                  ? "Aguarde..."
+                  : `Logar como ${displayName(lastLogin)}`}
+              </Button>
+            </form>
+          ) : (
+            <>
+              {oauthError ? (
+                <p
+                  role="alert"
+                  className="rounded-lg bg-[oklch(0.45_0.14_25/0.25)] px-3 py-2 text-sm text-[oklch(0.92_0.05_40)]"
+                >
+                  {oauthError}
+                </p>
+              ) : null}
 
-        <div className="space-y-2">
-          <Label htmlFor="password" className="text-[oklch(0.9_0.015_95)]">
-            Senha
-          </Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete={
-              mode === "login" ? "current-password" : "new-password"
-            }
-            required
-            minLength={6}
-            placeholder="••••••••"
-            className="h-10 border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] placeholder:text-[oklch(0.75_0.02_95)]"
-          />
-        </div>
+              <Button
+                type="button"
+                size="lg"
+                disabled={pending || oauthPending}
+                onClick={handleLoginAs}
+                className="h-10 w-full bg-[oklch(0.78_0.12_130)] text-[oklch(0.22_0.03_140)] hover:bg-[oklch(0.84_0.11_130)]"
+              >
+                {oauthPending
+                  ? "Aguarde..."
+                  : `Logar como ${displayName(lastLogin)}`}
+              </Button>
+            </>
+          )}
 
-        {state.error || oauthError ? (
-          <p
-            role="alert"
-            className="rounded-lg bg-[oklch(0.45_0.14_25/0.25)] px-3 py-2 text-sm text-[oklch(0.92_0.05_40)]"
+          <button
+            type="button"
+            onClick={handleUseAnotherAccount}
+            className="w-full text-center text-sm text-[oklch(0.8_0.02_95)] underline-offset-4 hover:underline"
           >
-            {state.error ?? oauthError}
+            Usar outra conta
+          </button>
+        </div>
+      ) : (
+        <>
+          <form action={formAction} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-[oklch(0.9_0.015_95)]">
+                E-mail
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="voce@email.com"
+                className="h-10 border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] placeholder:text-[oklch(0.75_0.02_95)]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-[oklch(0.9_0.015_95)]">
+                Senha
+              </Label>
+              <Input
+                ref={passwordRef}
+                id="password"
+                name="password"
+                type="password"
+                autoComplete={
+                  mode === "login" ? "current-password" : "new-password"
+                }
+                required
+                minLength={6}
+                placeholder="••••••••"
+                className="h-10 border-[oklch(1_0_0/0.12)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] placeholder:text-[oklch(0.75_0.02_95)]"
+              />
+            </div>
+
+            {state.error || oauthError ? (
+              <p
+                role="alert"
+                className="rounded-lg bg-[oklch(0.45_0.14_25/0.25)] px-3 py-2 text-sm text-[oklch(0.92_0.05_40)]"
+              >
+                {state.error ?? oauthError}
+              </p>
+            ) : null}
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={pending || oauthPending}
+              className="h-10 w-full bg-[oklch(0.78_0.12_130)] text-[oklch(0.22_0.03_140)] hover:bg-[oklch(0.84_0.11_130)]"
+            >
+              {pending || oauthPending
+                ? "Aguarde..."
+                : mode === "login"
+                  ? "Entrar"
+                  : "Criar conta"}
+            </Button>
+          </form>
+
+          <div className="flex items-center gap-3 text-[oklch(0.75_0.02_95)]">
+            <div className="h-px flex-1 bg-[oklch(1_0_0/0.12)]" />
+            <span className="text-xs tracking-wide uppercase">ou</span>
+            <div className="h-px flex-1 bg-[oklch(1_0_0/0.12)]" />
+          </div>
+
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={pending || oauthPending}
+              onClick={() => handleOAuth("github")}
+              className="h-10 w-full border-[oklch(1_0_0/0.14)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] hover:bg-[oklch(1_0_0/0.1)] hover:text-[oklch(0.98_0.01_95)]"
+            >
+              <GitHubIcon className="size-4" />
+              Continuar com GitHub
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={pending || oauthPending}
+              onClick={() => handleOAuth("google")}
+              className="h-10 w-full border-[oklch(1_0_0/0.14)] bg-[oklch(1_0_0/0.06)] text-[oklch(0.98_0.01_95)] hover:bg-[oklch(1_0_0/0.1)] hover:text-[oklch(0.98_0.01_95)]"
+            >
+              <GoogleIcon className="size-4" />
+              Continuar com Google
+            </Button>
+          </div>
+
+          <p className="text-sm text-[oklch(0.8_0.02_95)]">
+            {mode === "login" ? (
+              <>
+                Ainda não tem conta?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className="font-medium text-[oklch(0.88_0.1_130)] underline-offset-4 hover:underline"
+                >
+                  Cadastre-se
+                </button>
+              </>
+            ) : (
+              <>
+                Já tem conta?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  className="font-medium text-[oklch(0.88_0.1_130)] underline-offset-4 hover:underline"
+                >
+                  Entrar
+                </button>
+              </>
+            )}
           </p>
-        ) : null}
-
-        <Button
-          type="submit"
-          size="lg"
-          disabled={pending || oauthPending}
-          className="h-10 w-full bg-[oklch(0.78_0.12_130)] text-[oklch(0.22_0.03_140)] hover:bg-[oklch(0.84_0.11_130)]"
-        >
-          {pending || oauthPending
-            ? "Aguarde..."
-            : mode === "login"
-              ? "Entrar"
-              : "Criar conta"}
-        </Button>
-      </form>
-
-      <p className="text-sm text-[oklch(0.8_0.02_95)]">
-        {mode === "login" ? (
-          <>
-            Ainda não tem conta?{" "}
-            <button
-              type="button"
-              onClick={() => setMode("signup")}
-              className="font-medium text-[oklch(0.88_0.1_130)] underline-offset-4 hover:underline"
-            >
-              Cadastre-se
-            </button>
-          </>
-        ) : (
-          <>
-            Já tem conta?{" "}
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className="font-medium text-[oklch(0.88_0.1_130)] underline-offset-4 hover:underline"
-            >
-              Entrar
-            </button>
-          </>
-        )}
-      </p>
+        </>
+      )}
     </div>
   );
 }
