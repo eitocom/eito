@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
 import { TaskStatusActions } from "@/components/projects/task-status-actions";
+import { EditTaskDialog } from "@/components/projects/edit-task-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -117,14 +118,15 @@ export default async function TaskDetailPage({
                 canRelease={canRelease}
               />
               {isOwner ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled
-                  title="Disponível na próxima entrega"
-                >
-                  Editar
-                </Button>
+                <EditTaskDialog
+                  taskId={task.id}
+                  initialValues={{
+                    title: task.title,
+                    description: task.description,
+                    githubIssueUrl: task.githubIssueUrl ?? "",
+                    amountBrl: task.amountBrl,
+                  }}
+                />
               ) : null}
             </div>
           </div>
