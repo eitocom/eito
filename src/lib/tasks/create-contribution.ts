@@ -129,7 +129,7 @@ export async function createContributionForUser(
       },
     });
 
-    let taskStatus = task.status;
+    let taskStatus: string = task.status;
     if (task.status === "IN_PROGRESS") {
       const updated = await prisma.task.update({
         where: { id: task.id },
